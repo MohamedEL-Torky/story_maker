@@ -130,8 +130,7 @@ class _StoryMakerState extends State<StoryMaker> {
                                       gradient: LinearGradient(
                                         begin: FractionalOffset.topLeft,
                                         end: FractionalOffset.centerRight,
-                                        colors: gradientColors[
-                                            _selectedBackgroundGradient],
+                                        colors: gradientColors[_selectedBackgroundGradient],
                                       ),
                                     ),
                                     maxScale: 2.0,
@@ -190,12 +189,10 @@ class _StoryMakerState extends State<StoryMaker> {
                                         fontSize: _selectedFontSize,
                                         fontFamilyIndex: _selectedFontFamily,
                                         textColor: _selectedTextColor,
-                                        backgroundColorIndex:
-                                            _selectedTextBackgroundGradient,
+                                        backgroundColorIndex: _selectedTextBackgroundGradient,
                                       ),
                                       SizeSliderWidget(
-                                        animationsDuration:
-                                            widget.animationsDuration,
+                                        animationsDuration: widget.animationsDuration,
                                         selectedValue: _selectedFontSize,
                                         onChanged: (input) {
                                           setState(
@@ -252,8 +249,7 @@ class _StoryMakerState extends State<StoryMaker> {
               animationsDuration: widget.animationsDuration,
               onPickerTap: _onToggleBackgroundGradientPicker,
               onScreenTap: _onScreenTap,
-              selectedTextBackgroundGradientIndex:
-                  _selectedTextBackgroundGradient,
+              selectedTextBackgroundGradientIndex: _selectedTextBackgroundGradient,
               onToggleTextColorPicker: _onToggleTextColorSelector,
               onChangeTextBackground: _onChangeTextBackground,
               activeItem: _activeItem,
@@ -403,15 +399,13 @@ class _StoryMakerState extends State<StoryMaker> {
       viewportFraction: .125,
     );
     _textColorsPageController = PageController(
-      initialPage:
-          defaultColors.indexWhere((element) => element == _selectedTextColor),
+      initialPage: defaultColors.indexWhere((element) => element == _selectedTextColor),
       viewportFraction: .1,
     );
   }
 
   Future<void> _onDone() async {
-    final boundary = previewContainer.currentContext!.findRenderObject()
-        as RenderRepaintBoundary?;
+    final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
     final image = await boundary!.toImage(pixelRatio: 3);
     final directory = (await getApplicationDocumentsDirectory()).path;
     final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;

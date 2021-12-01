@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:story_maker/story_maker.dart';
+import 'package:story_maker/text_story_maker.dart';
 
 void main() {
   runApp(
@@ -41,9 +42,7 @@ class _MyAppState extends State<MyApp> {
                   Permission.storage,
                 ].request();
                 final picker = ImagePicker();
-                await picker
-                    .pickImage(source: ImageSource.gallery)
-                    .then((file) async {
+                await picker.pickImage(source: ImageSource.gallery).then((file) async {
                   final File editedFile = await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => StoryMaker(
@@ -58,6 +57,22 @@ class _MyAppState extends State<MyApp> {
                 });
               },
               child: const Text('Pick Image'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await [
+                  Permission.storage,
+                ].request();
+                final File editedFile = await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const TextStoryMaker(),
+                  ),
+                );
+                setState(() {
+                  image = editedFile;
+                });
+              },
+              child: const Text('Text Creator'),
             ),
             if (image != null)
               Expanded(

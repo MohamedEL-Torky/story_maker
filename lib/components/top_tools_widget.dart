@@ -57,8 +57,7 @@ class TopToolsWidget extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: FractionalOffset.topLeft,
                       end: FractionalOffset.bottomRight,
-                      colors:
-                          gradientColors[selectedTextBackgroundGradientIndex],
+                      colors: gradientColors[selectedTextBackgroundGradientIndex],
                     ),
                     borderRadius: const BorderRadius.all(
                       Radius.circular(4),
@@ -98,8 +97,7 @@ class TopToolsWidget extends StatelessWidget {
                       width: 36,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors:
-                              gradientColors[selectedBackgroundGradientIndex],
+                          colors: gradientColors[selectedBackgroundGradientIndex],
                         ),
                         border: Border.all(color: Colors.white),
                         borderRadius: BorderRadius.circular(32),

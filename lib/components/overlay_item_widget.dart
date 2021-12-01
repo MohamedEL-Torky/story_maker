@@ -81,6 +81,33 @@ class OverlayItemWidget extends StatelessWidget {
         break;
       case ItemType.IMAGE:
         overlayWidget = const Center();
+        break;
+      case ItemType.TEXTONLY:
+        overlayWidget = Center(
+          child: SizedBox(
+            width: context.width - 73,
+            child: Text(
+              editableItem.value,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.getFont(
+                fontFamilyList[editableItem.fontFamily],
+              ).copyWith(
+                color: editableItem.color,
+                fontSize: editableItem.fontSize,
+                background: Paint()
+                  ..strokeWidth = 24
+                  ..shader = createShader(
+                    colors: gradientColors[editableItem.textStyle],
+                    width: context.width,
+                    height: context.height,
+                  )
+                  ..style = PaintingStyle.stroke
+                  ..strokeJoin = StrokeJoin.round,
+              ),
+            ),
+          ),
+        );
+        break;
     }
 
     return Positioned(

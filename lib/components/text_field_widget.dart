@@ -13,7 +13,8 @@ class TextFieldWidget extends StatelessWidget {
   final double fontSize;
   final int fontFamilyIndex;
   final Color textColor;
-  final int backgroundColorIndex;
+  final int? backgroundColorIndex;
+  final String? hintText;
 
   const TextFieldWidget({
     Key? key,
@@ -23,7 +24,8 @@ class TextFieldWidget extends StatelessWidget {
     required this.fontSize,
     required this.fontFamilyIndex,
     required this.textColor,
-    required this.backgroundColorIndex,
+    this.backgroundColorIndex,
+    this.hintText,
   }) : super(key: key);
 
   @override
@@ -45,7 +47,7 @@ class TextFieldWidget extends StatelessWidget {
                 blendMode: BlendMode.overlay,
                 shaderCallback: (bounds) {
                   return createShader(
-                    colors: gradientColors[backgroundColorIndex],
+                    colors: gradientColors[backgroundColorIndex ?? 0],
                     width: context.width,
                     height: context.height,
                   );
@@ -64,15 +66,17 @@ class TextFieldWidget extends StatelessWidget {
                   minLines: 1,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     fillColor: Colors.white,
                     filled: false,
-                    border: UnderlineInputBorder(
+                    hintStyle: TextStyle(color: textColor),
+                    hintText: hintText ?? 'Type a Status',
+                    border: const UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors.transparent,
                       ),
                     ),
-                    focusedBorder: UnderlineInputBorder(
+                    focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors.transparent,
                       ),
