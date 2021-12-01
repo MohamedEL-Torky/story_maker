@@ -100,53 +100,46 @@ class _TextStoryMakerState extends State<TextStoryMaker> {
                             gradient: LinearGradient(
                               begin: FractionalOffset.topLeft,
                               end: FractionalOffset.centerRight,
-                              colors: gradientColors[_selectedBackgroundGradient],
+                              colors: _selectedBackgroundGradient == 0
+                                  ? [Colors.black, Colors.black]
+                                  : gradientColors[_selectedBackgroundGradient],
                             ),
                           ),
                         ),
-                        OverlayItemWidget(
-                          editableItem: (EditableItem()
-                            ..type = ItemType.TEXTONLY
-                            ..value = _currentText
-                            ..color = _selectedTextColor
-                            ..fontSize = _selectedFontSize
-                            ..fontFamily = _selectedFontFamily),
-                          onItemTap: () {},
+                        AnimatedSwitcher(
+                          duration: widget.animationsDuration,
+                          child: Container(
+                            height: context.height,
+                            width: context.width,
+                            color: Colors.black.withOpacity(0.4),
+                            child: Stack(
+                              children: [
+                                TextFieldWidget(
+                                  controller: _editingController,
+                                  onChanged: (_) {},
+                                  onSubmit: (_) {},
+                                  fontSize: _selectedFontSize,
+                                  fontFamilyIndex: _selectedFontFamily,
+                                  textColor: _selectedTextColor,
+                                  hintText: widget.hintText,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  AnimatedSwitcher(
-                    duration: widget.animationsDuration,
-                    child: Container(
-                      height: context.height,
-                      width: context.width,
-                      color: Colors.black.withOpacity(0.4),
-                      child: Stack(
-                        children: [
-                          TextFieldWidget(
-                            controller: _editingController,
-                            onChanged: _onTextChange,
-                            onSubmit: (_) {},
-                            fontSize: _selectedFontSize,
-                            fontFamilyIndex: _selectedFontFamily,
-                            textColor: _selectedTextColor,
-                            hintText: widget.hintText,
-                          ),
-                          SizeSliderWidget(
-                            animationsDuration: widget.animationsDuration,
-                            selectedValue: _selectedFontSize,
-                            onChanged: (input) {
-                              setState(
-                                () {
-                                  _selectedFontSize = input;
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+                  SizeSliderWidget(
+                    animationsDuration: widget.animationsDuration,
+                    selectedValue: _selectedFontSize,
+                    onChanged: (input) {
+                      setState(
+                        () {
+                          _selectedFontSize = input;
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -167,10 +160,6 @@ class _TextStoryMakerState extends State<TextStoryMaker> {
         ),
       ),
     );
-  }
-
-  void _onTextChange(input) {
-    _currentText = input;
   }
 
   void _onChangeFontPressed() {
@@ -195,13 +184,10 @@ class _TextStoryMakerState extends State<TextStoryMaker> {
         }
       },
     );
-    _gradientsPageController.jumpToPage(_selectedBackgroundGradient);
   }
 
   Future<void> _onDone() async {
-    setState(() {
-      _currentText = _editingController.text;
-    });
+    FocusScope.of(context).unfocus();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
       final image = await boundary!.toImage(pixelRatio: 3);
