@@ -189,16 +189,20 @@ class _TextStoryMakerState extends State<TextStoryMaker> {
   Future<void> _onDone() async {
     FocusScope.of(context).unfocus();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
-      final image = await boundary!.toImage(pixelRatio: 3);
-      final directory = (await getApplicationDocumentsDirectory()).path;
-      final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
-      final pngBytes = byteData.buffer.asUint8List();
-      final imgFile = File('$directory/${DateTime.now()}.png');
-      await imgFile.writeAsBytes(pngBytes).then((value) {
-        // done: return imgFile
-        Navigator.of(context).pop(imgFile);
-      });
+      if (_editingController.text.isNotEmpty) {
+        final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
+        final image = await boundary!.toImage(pixelRatio: 3);
+        final directory = (await getApplicationDocumentsDirectory()).path;
+        final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
+        final pngBytes = byteData.buffer.asUint8List();
+        final imgFile = File('$directory/${DateTime.now()}.png');
+        await imgFile.writeAsBytes(pngBytes).then((value) {
+          // done: return imgFile
+          Navigator.of(context).pop(imgFile);
+        });
+      } else {
+        Navigator.of(context).pop();
+      }
     });
   }
 }
