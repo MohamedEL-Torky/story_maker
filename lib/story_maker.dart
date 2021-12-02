@@ -130,7 +130,9 @@ class _StoryMakerState extends State<StoryMaker> {
                                       gradient: LinearGradient(
                                         begin: FractionalOffset.topLeft,
                                         end: FractionalOffset.centerRight,
-                                        colors: gradientColors[_selectedBackgroundGradient],
+                                        colors: _selectedBackgroundGradient == 0
+                                            ? [Colors.black, Colors.black]
+                                            : gradientColors[_selectedBackgroundGradient],
                                       ),
                                     ),
                                     maxScale: 2.0,
