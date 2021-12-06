@@ -9,7 +9,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:photo_view/photo_view.dart';
 
 import 'components/background_gradient_selector_widget.dart';
 import 'components/font_family_select_widget.dart';
@@ -32,11 +31,13 @@ class StoryMaker extends StatefulWidget {
     required this.filePath,
     this.animationsDuration = const Duration(milliseconds: 300),
     this.doneButtonChild,
+    this.onDone,
   }) : super(key: key);
 
   final String filePath;
   final Duration animationsDuration;
   final Widget? doneButtonChild;
+  final Future<void> Function(File)? onDone;
 
   @override
   _StoryMakerState createState() => _StoryMakerState();
@@ -109,107 +110,101 @@ class _StoryMakerState extends State<StoryMaker> {
               left: 0,
               right: 0,
               child: ClipRect(
-                child: AspectRatio(
-                  aspectRatio: 9 / 16,
-                  child: GestureDetector(
-                    onScaleStart: _onScaleStart,
-                    onScaleUpdate: _onScaleUpdate,
-                    onTap: _onScreenTap,
-                    child: Stack(
-                      children: [
-                        RepaintBoundary(
-                          key: previewContainer,
-                          child: Stack(
-                            children: [
-                              Visibility(
-                                visible: _stackData[0].type == ItemType.IMAGE,
-                                child: Center(
-                                  child: PhotoView(
-                                    enableRotation: true,
-                                    backgroundDecoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: FractionalOffset.topLeft,
-                                        end: FractionalOffset.centerRight,
-                                        colors: _selectedBackgroundGradient == 0
-                                            ? [Colors.black, Colors.black]
-                                            : gradientColors[_selectedBackgroundGradient],
-                                      ),
-                                    ),
-                                    maxScale: 2.0,
-                                    enablePanAlways: false,
-                                    imageProvider: FileImage(
-                                      File(_stackData[0].value),
-                                    ),
-                                  ),
+                child: GestureDetector(
+                  onScaleStart: _onScaleStart,
+                  onScaleUpdate: _onScaleUpdate,
+                  onTap: _onScreenTap,
+                  child: Stack(
+                    children: [
+                      RepaintBoundary(
+                        key: previewContainer,
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: FractionalOffset.topLeft,
+                                  end: FractionalOffset.centerRight,
+                                  colors: _selectedBackgroundGradient == 0
+                                      ? [Colors.black, Colors.black]
+                                      : gradientColors[_selectedBackgroundGradient],
                                 ),
                               ),
-                              ..._stackData
-                                  .map(
-                                    (editableItem) => OverlayItemWidget(
-                                      editableItem: editableItem,
-                                      onItemTap: () {
-                                        _onOverlayItemTap(editableItem);
-                                      },
-                                      onPointerDown: (details) {
-                                        _onOverlayItemPointerDown(
-                                          editableItem,
-                                          details,
-                                        );
-                                      },
-                                      onPointerUp: (details) {
-                                        _onOverlayItemPointerUp(
-                                          editableItem,
-                                          details,
-                                        );
-                                      },
-                                      onPointerMove: (details) {
-                                        _onOverlayItemPointerMove(
-                                          editableItem,
-                                          details,
+                            ),
+                            Visibility(
+                              visible: _stackData[0].type == ItemType.IMAGE,
+                              child: Image.asset(
+                                _stackData[0].value,
+                                height: MediaQuery.of(context).size.height,
+                                fit: BoxFit.fitHeight,
+                              ),
+                            ),
+                            ..._stackData
+                                .map(
+                                  (editableItem) => OverlayItemWidget(
+                                    editableItem: editableItem,
+                                    onItemTap: () {
+                                      _onOverlayItemTap(editableItem);
+                                    },
+                                    onPointerDown: (details) {
+                                      _onOverlayItemPointerDown(
+                                        editableItem,
+                                        details,
+                                      );
+                                    },
+                                    onPointerUp: (details) {
+                                      _onOverlayItemPointerUp(
+                                        editableItem,
+                                        details,
+                                      );
+                                    },
+                                    onPointerMove: (details) {
+                                      _onOverlayItemPointerMove(
+                                        editableItem,
+                                        details,
+                                      );
+                                    },
+                                  ),
+                                )
+                                .toList(),
+                          ],
+                        ),
+                      ),
+                      AnimatedSwitcher(
+                        duration: widget.animationsDuration,
+                        child: !_isTextInput
+                            ? const SizedBox()
+                            : Container(
+                                height: context.height,
+                                width: context.width,
+                                color: Colors.black.withOpacity(0.4),
+                                child: Stack(
+                                  children: [
+                                    TextFieldWidget(
+                                      controller: _editingController,
+                                      onChanged: _onTextChange,
+                                      onSubmit: _onTextSubmit,
+                                      fontSize: _selectedFontSize,
+                                      fontFamilyIndex: _selectedFontFamily,
+                                      textColor: _selectedTextColor,
+                                      backgroundColorIndex: _selectedTextBackgroundGradient,
+                                    ),
+                                    SizeSliderWidget(
+                                      animationsDuration: widget.animationsDuration,
+                                      selectedValue: _selectedFontSize,
+                                      onChanged: (input) {
+                                        setState(
+                                          () {
+                                            _selectedFontSize = input;
+                                          },
                                         );
                                       },
                                     ),
-                                  )
-                                  .toList(),
-                            ],
-                          ),
-                        ),
-                        AnimatedSwitcher(
-                          duration: widget.animationsDuration,
-                          child: !_isTextInput
-                              ? const SizedBox()
-                              : Container(
-                                  height: context.height,
-                                  width: context.width,
-                                  color: Colors.black.withOpacity(0.4),
-                                  child: Stack(
-                                    children: [
-                                      TextFieldWidget(
-                                        controller: _editingController,
-                                        onChanged: _onTextChange,
-                                        onSubmit: _onTextSubmit,
-                                        fontSize: _selectedFontSize,
-                                        fontFamilyIndex: _selectedFontFamily,
-                                        textColor: _selectedTextColor,
-                                        backgroundColorIndex: _selectedTextBackgroundGradient,
-                                      ),
-                                      SizeSliderWidget(
-                                        animationsDuration: widget.animationsDuration,
-                                        selectedValue: _selectedFontSize,
-                                        onChanged: (input) {
-                                          setState(
-                                            () {
-                                              _selectedFontSize = input;
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                                  ],
                                 ),
-                        ),
-                      ],
-                    ),
+                              ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -266,6 +261,7 @@ class _StoryMakerState extends State<StoryMaker> {
               alignment: Alignment.bottomCenter,
               child: FooterToolsWidget(
                 onDone: _onDone,
+                doneButtonChild: widget.doneButtonChild,
               ),
             ),
           ],
@@ -413,10 +409,15 @@ class _StoryMakerState extends State<StoryMaker> {
     final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
     final pngBytes = byteData.buffer.asUint8List();
     final imgFile = File('$directory/${DateTime.now()}.png');
-    await imgFile.writeAsBytes(pngBytes).then((value) {
-      // done: return imgFile
-      Navigator.of(context).pop(imgFile);
-    });
+    if (widget.onDone != null) {
+      await widget.onDone!(imgFile);
+      Navigator.of(context).pop();
+    } else {
+      await imgFile.writeAsBytes(pngBytes).then((value) {
+        // done: return imgFile
+        Navigator.of(context).pop(imgFile);
+      });
+    }
   }
 
   void _onSubmitText() {
