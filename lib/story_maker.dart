@@ -37,7 +37,7 @@ class StoryMaker extends StatefulWidget {
   final String filePath;
   final Duration animationsDuration;
   final Widget? doneButtonChild;
-  final Future<void> Function(File)? onDone;
+  final Function(File)? onDone;
 
   @override
   _StoryMakerState createState() => _StoryMakerState();
@@ -259,10 +259,17 @@ class _StoryMakerState extends State<StoryMaker> {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: FooterToolsWidget(
-                onDone: _onDone,
-                doneButtonChild: widget.doneButtonChild,
-              ),
+              child: widget.onDone == null
+                  ? FooterToolsWidget(
+                      onDone: _onDone,
+                      doneButtonChild: widget.doneButtonChild,
+                    )
+                  : GestureDetector(
+                      onTap: () async {
+                        widget.onDone!(await _onDoneFile());
+                      },
+                      child: widget.doneButtonChild,
+                    ),
             ),
           ],
         ),
@@ -418,6 +425,16 @@ class _StoryMakerState extends State<StoryMaker> {
         Navigator.of(context).pop(imgFile);
       });
     }
+  }
+
+  Future<File> _onDoneFile() async {
+    final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
+    final image = await boundary!.toImage(pixelRatio: 3);
+    final directory = (await getApplicationDocumentsDirectory()).path;
+    final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
+    final pngBytes = byteData.buffer.asUint8List();
+    final imgFile = File('$directory/${DateTime.now()}.png');
+    return imgFile.writeAsBytes(pngBytes);
   }
 
   void _onSubmitText() {
