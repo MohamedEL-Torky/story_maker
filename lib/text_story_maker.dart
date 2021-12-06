@@ -26,13 +26,11 @@ class TextStoryMaker extends StatefulWidget {
     this.animationsDuration = const Duration(milliseconds: 300),
     this.doneButtonChild,
     this.hintText,
-    this.onDone,
   }) : super(key: key);
 
   final Duration animationsDuration;
   final Widget? doneButtonChild;
   final String? hintText;
-  final Function(File)? onDone;
 
   @override
   _TextStoryMakerState createState() => _TextStoryMakerState();
@@ -154,25 +152,9 @@ class _TextStoryMakerState extends State<TextStoryMaker> {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: widget.onDone == null
-                  ? FooterToolsWidget(
-                      onDone: _onDone,
-                      doneButtonChild: widget.doneButtonChild,
-                    )
-                  : GestureDetector(
-                      onTap: () async {
-                        WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-                          final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
-                          final image = await boundary!.toImage(pixelRatio: 3);
-                          final directory = (await getApplicationDocumentsDirectory()).path;
-                          final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
-                          final pngBytes = byteData.buffer.asUint8List();
-                          final imgFile = File('$directory/${DateTime.now()}.png');
-                          widget.onDone!(await imgFile.writeAsBytes(pngBytes));
-                        });
-                      },
-                      child: widget.doneButtonChild,
-                    ),
+              child: FooterToolsWidget(
+                onDone: _onDone,
+              ),
             ),
           ],
         ),

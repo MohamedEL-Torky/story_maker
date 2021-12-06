@@ -9,6 +9,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_view/photo_view.dart';
 
 import 'components/background_gradient_selector_widget.dart';
 import 'components/font_family_select_widget.dart';
@@ -31,13 +32,11 @@ class StoryMaker extends StatefulWidget {
     required this.filePath,
     this.animationsDuration = const Duration(milliseconds: 300),
     this.doneButtonChild,
-    this.onDone,
   }) : super(key: key);
 
   final String filePath;
   final Duration animationsDuration;
   final Widget? doneButtonChild;
-  final Function(File)? onDone;
 
   @override
   _StoryMakerState createState() => _StoryMakerState();
@@ -259,17 +258,9 @@ class _StoryMakerState extends State<StoryMaker> {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: widget.onDone == null
-                  ? FooterToolsWidget(
-                      onDone: _onDone,
-                      doneButtonChild: widget.doneButtonChild,
-                    )
-                  : GestureDetector(
-                      onTap: () async {
-                        widget.onDone!(await _onDoneFile());
-                      },
-                      child: widget.doneButtonChild,
-                    ),
+              child: FooterToolsWidget(
+                onDone: _onDone,
+              ),
             ),
           ],
         ),
@@ -416,25 +407,10 @@ class _StoryMakerState extends State<StoryMaker> {
     final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
     final pngBytes = byteData.buffer.asUint8List();
     final imgFile = File('$directory/${DateTime.now()}.png');
-    if (widget.onDone != null) {
-      await widget.onDone!(imgFile);
-      Navigator.of(context).pop();
-    } else {
-      await imgFile.writeAsBytes(pngBytes).then((value) {
-        // done: return imgFile
-        Navigator.of(context).pop(imgFile);
-      });
-    }
-  }
-
-  Future<File> _onDoneFile() async {
-    final boundary = previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary?;
-    final image = await boundary!.toImage(pixelRatio: 3);
-    final directory = (await getApplicationDocumentsDirectory()).path;
-    final byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;
-    final pngBytes = byteData.buffer.asUint8List();
-    final imgFile = File('$directory/${DateTime.now()}.png');
-    return imgFile.writeAsBytes(pngBytes);
+    await imgFile.writeAsBytes(pngBytes).then((value) {
+      // done: return imgFile
+      Navigator.of(context).pop(imgFile);
+    });
   }
 
   void _onSubmitText() {
